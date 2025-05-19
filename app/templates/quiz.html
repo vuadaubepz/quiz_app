@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Làm Quiz{% endblock %}
+{% block content %}
+<h2 class="text-2xl mb-4">{{ quiz.title }}</h2>
+<div id="timer" class="text-red-600 font-bold mb-4">Thời gian: {{ duration_min }}:00</div>
+<form id="quiz-form" method="post" action="/quiz/{{ quiz.id }}/submit">
+  {% for item in qs_data %}
+    <div class="mb-6 p-4 border rounded bg-white">
+      <p class="font-medium">Câu {{ loop.index }}: {{ item.question.text }}</p>
+      {% for c in item.choices %}
+        <label class="block mt-2">
+          <input type="radio" name="q{{ item.question.id }}" value="{{ c.id }}" required>
+          {{ c.text }}
+        </label>
+      {% endfor %}
+    </div>
+  {% endfor %}
+  <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Nộp bài</button>
+</form>
+
+<script>
+// Timer JS đơn giản
+let totalSeconds = {{ duration_min }} * 60;
+const timerEl = document.getElementById("timer");
+function updateTimer() {
+  if (totalSeconds <= 0) {
+    document.getElementById("quiz-form").submit();
+    return;
+  }
+  totalSeconds--;
+  let m = Math.floor(totalSeconds / 60);
+  let s = totalSeconds % 60;
+  timerEl.textContent = `Thời gian: ${m}:${s.toString().padStart(2,'0')}`;
+}
+setInterval(updateTimer, 1000);
+</script>
+{% endblock %}
