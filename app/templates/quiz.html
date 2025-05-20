@@ -1,37 +1,85 @@
 {% extends "base.html" %}
-{% block title %}Làm Quiz{% endblock %}
-{% block content %}
-<h2 class="text-2xl mb-4">{{ quiz.title }}</h2>
-<div id="timer" class="text-red-600 font-bold mb-4">Thời gian: {{ duration_min }}:00</div>
-<form id="quiz-form" method="post" action="/quiz/{{ quiz.id }}/submit">
-  {% for item in qs_data %}
-    <div class="mb-6 p-4 border rounded bg-white">
-      <p class="font-medium">Câu {{ loop.index }}: {{ item.question.text }}</p>
-      {% for c in item.choices %}
-        <label class="block mt-2">
-          <input type="radio" name="q{{ item.question.id }}" value="{{ c.id }}" required>
-          {{ c.text }}
-        </label>
-      {% endfor %}
-    </div>
-  {% endfor %}
-  <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Nộp bài</button>
-</form>
 
-<script>
-// Timer JS đơn giản
-let totalSeconds = {{ duration_min }} * 60;
-const timerEl = document.getElementById("timer");
-function updateTimer() {
-  if (totalSeconds <= 0) {
-    document.getElementById("quiz-form").submit();
-    return;
-  }
-  totalSeconds--;
-  let m = Math.floor(totalSeconds / 60);
-  let s = totalSeconds % 60;
-  timerEl.textContent = `Thời gian: ${m}:${s.toString().padStart(2,'0')}`;
-}
-setInterval(updateTimer, 1000);
-</script>
-{% endblock %}
+{% block title %}{{ quiz.title }}{% endblock title %}
+
+{% block content %}
+  <h2 class="text-2xl font-bold mb-4 text-center">{{ quiz.title }}</h2>
+
+  <!-- Timer & Progress -->
+  <div class="flex justify-between items-center mb-4">
+    <div id="timer" class="text-red-600 font-semibold">45:00</div>
+    <div class="text-sm text-gray-600">
+      Câu <span id="current-question">1</span> / {{ qs_data|length }}
+    </div>
+  </div>
+  <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+    <div id="progbar" class="bg-blue-500 h-2 rounded-full" style="width:0%"></div>
+  </div>
+
+  <form
+    method="post"
+    action="/quiz/{{ quiz.id }}/submit"
+    class="space-y-6"
+    id="quiz-form"
+  >
+    {% for item in qs_data %}
+      <div
+        class="bg-white rounded-2xl shadow-lg p-6 transition-shadow duration-200"
+        data-index="{{ loop.index0 }}"
+        {% if loop.index0 != 0 %}style="display:none"{% endif %}
+      >
+        <p class="text-lg font-medium mb-3">
+          {{ item['q'].text }}
+        </p>
+        <div class="space-y-2">
+          {% for c in item['choices'] %}
+            <label class="flex items-center space-x-2 transition-colors duration-200 hover:text-blue-600">
+              <input
+                type="radio"
+                name="q{{ item['q'].id }}"
+                value="{{ c.id }}"
+                required
+                class="form-radio transition-transform duration-150 hover:scale-105"
+              />
+              <span>{{ c.text }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="flex justify-between items-center">
+      <button
+        type="button"
+        id="prev-btn"
+        class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+        disabled
+      >Prev</button>
+
+      <button
+        type="button"
+        id="next-btn"
+        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+      >Next</button>
+    </div>
+
+    <button
+      type="submit"
+      class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded mt-4 transition-colors"
+    >
+      Nộp bài
+    </button>
+  </form>
+
+  <script>
+    // Timer
+    let sec = 45 * 60,
+        timer = document.getElementById("timer"),
+        form = document.getElementById("quiz-form"),
+        total = {{ qs_data|length }},
+        current = 0;
+
+    const updateUI = () => {
+      // progress bar & counter
+      document.getElementById("current-question").textContent = current + 1;
+      document.getElementById("progbar").style

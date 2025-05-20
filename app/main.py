@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Depends, Request
-# from fastapi.staticfiles import StaticFiles   ← Bỏ import nếu không dùng
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlmodel import SQLModel, select, Session
+
 from app.db import engine, get_session
 from app.models import Quiz
 from app.routes.auth import router as auth_router
@@ -9,8 +10,8 @@ from app.routes.quiz import router as quiz_router
 
 app = FastAPI()
 
-# Không mount static nếu không có thư mục
-# app.mount("/static", StaticFiles(directory="app/static"), name="static")
+# Mount thư mục static (nếu bạn để static/ bên ngoài app/)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="app/templates")
 

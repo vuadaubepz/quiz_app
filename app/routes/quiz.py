@@ -1,3 +1,4 @@
+# app/routes/quiz.py
 from fastapi import APIRouter, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -10,7 +11,7 @@ import random
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
-# Lưu session quiz tạm (sẽ chuyển Redis/DB khi mở rộng)
+# Tạm lưu session quiz trong memory (sẽ đổi sang Redis hay DB khác sau)
 SESSIONS: dict[int, dict] = {}
 
 @router.get("/topics", response_class=HTMLResponse)
@@ -42,12 +43,16 @@ def start_quiz(
         "answers": {}
     }
 
+    # Sửa key 'question' → 'q' để khớp template
     qs_data = []
     for q in sampled:
         choices = session.exec(
             select(Choice).where(Choice.question_id == q.id)
         ).all()
-        qs_data.append({"question": q, "choices": choices})
+        qs_data.append({
+            "q": q,
+            "choices": choices
+        })
 
     return templates.TemplateResponse("quiz.html", {
         "request": request,

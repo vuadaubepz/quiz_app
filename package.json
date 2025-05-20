@@ -1,0 +1,26 @@
+{
+  "name": "quiz_app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+  "test":     "echo \"Error: no test specified\" && exit 1",
+  "build:css": "npm exec tailwindcss -- -i ./static/input.css -o ./static/output.css --minify",
+  "dev:css":   "npm exec tailwindcss -- -i ./static/input.css -o ./static/output.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vuadaubepz/quiz_app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vuadaubepz/quiz_app/issues"
+  },
+  "homepage": "https://github.com/vuadaubepz/quiz_app#readme",
+  "devDependencies": {
+    "tailwindcss": "^4.1.7",
+    "postcss": "^8.5.3",
+    "autoprefixer": "^10.4.21"
+  }
+}
