@@ -3,30 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{% block title %}Quiz App{% endblock title %}</title>
-  <!-- Tailwind CSS -->
+  <title>{% block title %}Quiz App{% endblock %}</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans">
-  <div class="max-w-3xl mx-auto px-4">
-    <!-- HEADER -->
-    <header class="py-6 flex justify-between items-center">
-      <h1 class="text-3xl font-extrabold">Quiz App</h1>
-      <nav>
-        <a href="/topics" class="px-3 py-1 hover:text-blue-600 transition-colors">Home</a>
-        <a href="#" class="px-3 py-1 hover:text-blue-600 transition-colors">Leaderboard</a>
-      </nav>
-    </header>
-
-    <!-- MAIN CONTENT -->
-    <main class="mb-12">
-      {% block content %}{% endblock content %}
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="py-6 text-center text-gray-500 text-sm">
-      © 2025 Quiz App. All rights reserved.
-    </footer>
-  </div>
+<body class="bg-indigo-50 min-h-screen flex flex-col">
+  <nav class="bg-white shadow p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <a href="/topics" class="text-2xl font-bold text-indigo-600">Quiz App</a>
+      <div>
+        <a href="/topics" class="px-3 py-1 text-gray-700 hover:text-indigo-600">Trang chủ</a>
+      </div>
+    </div>
+  </nav>
+  <main class="flex-grow">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="bg-white text-center text-gray-500 py-4 text-sm">
+    © {{ year }} Quiz App. All rights reserved.
+  </footer>
 </body>
 </html>

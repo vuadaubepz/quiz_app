@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Kết quả Quiz{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center min-h-screen">
+  <div class="bg-white rounded-2xl shadow-xl p-8 text-center">
+    <h2 class="text-4xl font-bold mb-6">Kết quả Quiz</h2>
+    <p class="text-xl mb-4">
+      Bạn đã trả lời đúng 
+      <span class="font-extrabold text-indigo-600">{{ score }}</span> 
+      trên tổng số 
+      <span class="font-extrabold text-indigo-600">{{ total }}</span> câu.
+    </p>
+    <a href="/topics"
+       class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-6 rounded-full transition">
+      Quay về chủ đề
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,56 +1,54 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { motion } from "framer-motion"
+from fastapi import APIRouter, Request, Depends
+from fastapi.templating import Jinja2Templates
+from sqlmodel import select, Session
+from datetime import datetime
 
-const topics = [
-  { id: 1, title: "Excel cơ bản" },
-  { id: 2, title: "Excel nâng cao" },
-  { id: 3, title: "Phân tích dữ liệu" },
-  { id: 4, title: "Hàm Excel chuyên sâu" },
-  { id: 5, title: "Excel cho kế toán" },
-  { id: 6, title: "Thống kê bằng Excel" },
-]
+from app.db import get_session
+from app.models import Quiz, Question, Choice
 
-export default function TopicSelect() {
-  return (
-    <div className="min-h-screen bg-[#f5f6fa] flex flex-col items-center py-12 px-4">
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-4xl font-bold text-gray-800 mb-4"
-      >
-        Quiz App
-      </motion.h1>
+router = APIRouter()
+templates = Jinja2Templates(directory="app/templates")
 
-      <motion.h2
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="text-2xl font-semibold text-gray-600 mb-10"
-      >
-        Chọn Chủ Đề
-      </motion.h2>
+@router.get("/topics", response_class=templates.TemplateResponse)
+def list_topics(request: Request, session: Session = Depends(get_session)):
+    quizzes = session.exec(select(Quiz)).all()
+    return templates.TemplateResponse("topics.html", {
+        "request": request,
+        "quizzes": quizzes,
+        "year": datetime.utcnow().year
+    })
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
-        {topics.map((topic, index) => (
-          <motion.div
-            key={topic.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 * index }}
-          >
-            <Card className="p-6 rounded-2xl shadow-md bg-white text-center hover:shadow-lg transition-all">
-              <CardContent>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">{topic.title}</h3>
-                <Button className="bg-purple-600 text-white hover:bg-purple-700 shadow">Bắt đầu</Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
+@router.get("/quiz/{quiz_id}", response_class=templates.TemplateResponse)
+def start_quiz(request: Request, quiz_id: int, session: Session = Depends(get_session)):
+    quiz = session.get(Quiz, quiz_id)
+    if not quiz:
+        return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
 
-      <footer className="mt-12 text-sm text-gray-400">© 2025 Quiz App. All rights reserved.</footer>
-    </div>
-  )
-}
+    items = []
+    questions = session.exec(select(Question).where(Question.quiz_id == quiz_id)).all()
+    for q in questions:
+        choices = session.exec(select(Choice).where(Choice.question_id == q.id)).all()
+        items.append({"q": q, "choices": choices})
+
+    return templates.TemplateResponse("quiz.html", {
+        "request": request,
+        "quiz": quiz,
+        "qs_data": items,
+        "duration_min": 45
+    })
+
+@router.post("/quiz/{quiz_id}/submit", response_class=templates.TemplateResponse)
+async def submit_quiz(request: Request, quiz_id: int, session: Session = Depends(get_session)):
+    form = await request.form()
+    correct = total = 0
+    for key, val in form.multi_items():
+        if key.startswith("q"):
+            total += 1
+            choice = session.get(Choice, int(val))
+            if choice and choice.is_correct:
+                correct += 1
+    return templates.TemplateResponse("result.html", {
+        "request": request,
+        "score": correct,
+        "total": total
+    })
