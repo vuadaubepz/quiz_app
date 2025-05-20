@@ -1,0 +1,6 @@
+# Thư mục node modules
+node_modules/
+# Lockfile (nếu cần)
+package-lock.json
+# Build output
+static/output.css
