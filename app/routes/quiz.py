@@ -1,102 +1,56 @@
-# app/routes/quiz.py
-from fastapi import APIRouter, Request, Depends, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
-from sqlmodel import Session, select
-from app.db import get_session
-from app.models import Quiz, Question, Choice
-from datetime import datetime
-import random
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { motion } from "framer-motion"
 
-router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
+const topics = [
+  { id: 1, title: "Excel cơ bản" },
+  { id: 2, title: "Excel nâng cao" },
+  { id: 3, title: "Phân tích dữ liệu" },
+  { id: 4, title: "Hàm Excel chuyên sâu" },
+  { id: 5, title: "Excel cho kế toán" },
+  { id: 6, title: "Thống kê bằng Excel" },
+]
 
-# Tạm lưu session quiz trong memory (sẽ đổi sang Redis hay DB khác sau)
-SESSIONS: dict[int, dict] = {}
+export default function TopicSelect() {
+  return (
+    <div className="min-h-screen bg-[#f5f6fa] flex flex-col items-center py-12 px-4">
+      <motion.h1
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-4xl font-bold text-gray-800 mb-4"
+      >
+        Quiz App
+      </motion.h1>
 
-@router.get("/topics", response_class=HTMLResponse)
-def list_topics(request: Request, session: Session = Depends(get_session)):
-    quizzes = session.exec(select(Quiz)).all()
-    return templates.TemplateResponse("topics.html", {
-        "request": request,
-        "quizzes": quizzes,
-    })
+      <motion.h2
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="text-2xl font-semibold text-gray-600 mb-10"
+      >
+        Chọn Chủ Đề
+      </motion.h2>
 
-@router.get("/quiz/{quiz_id}", response_class=HTMLResponse)
-def start_quiz(
-    request: Request,
-    quiz_id: int,
-    session: Session = Depends(get_session)
-):
-    quiz = session.get(Quiz, quiz_id)
-    if not quiz:
-        raise HTTPException(status_code=404, detail="Quiz không tồn tại")
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
+        {topics.map((topic, index) => (
+          <motion.div
+            key={topic.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 * index }}
+          >
+            <Card className="p-6 rounded-2xl shadow-md bg-white text-center hover:shadow-lg transition-all">
+              <CardContent>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">{topic.title}</h3>
+                <Button className="bg-purple-600 text-white hover:bg-purple-700 shadow">Bắt đầu</Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
 
-    questions = session.exec(
-        select(Question).where(Question.quiz_id == quiz_id)
-    ).all()
-    sampled = random.sample(questions, min(len(questions), 100))
-
-    SESSIONS[quiz_id] = {
-        "start_time": datetime.utcnow(),
-        "questions": [q.id for q in sampled],
-        "answers": {}
-    }
-
-    # Sửa key 'question' → 'q' để khớp template
-    qs_data = []
-    for q in sampled:
-        choices = session.exec(
-            select(Choice).where(Choice.question_id == q.id)
-        ).all()
-        qs_data.append({
-            "q": q,
-            "choices": choices
-        })
-
-    return templates.TemplateResponse("quiz.html", {
-        "request": request,
-        "quiz": quiz,
-        "qs_data": qs_data,
-        "duration_min": 45
-    })
-
-@router.post("/quiz/{quiz_id}/submit")
-async def submit_quiz(
-    quiz_id: int,
-    request: Request,
-    session: Session = Depends(get_session)
-):
-    us = SESSIONS.get(quiz_id)
-    if not us:
-        raise HTTPException(status_code=400, detail="Session không tồn tại")
-
-    form_data = await request.form()
-    correct = 0
-    for qid in us["questions"]:
-        selected = int(form_data.get(f"q{qid}", 0))
-        question = session.get(Question, qid)
-        if selected == question.correct_choice_id:
-            correct += 1
-
-    return RedirectResponse(
-        url=f"/leaderboard/{quiz_id}?score={correct}",
-        status_code=302
-    )
-
-@router.get("/leaderboard/{quiz_id}", response_class=HTMLResponse)
-def leaderboard(
-    request: Request,
-    quiz_id: int,
-    score: int = 0,
-    session: Session = Depends(get_session)
-):
-    quiz = session.get(Quiz, quiz_id)
-    if not quiz:
-        raise HTTPException(status_code=404, detail="Quiz không tồn tại")
-
-    return templates.TemplateResponse("leaderboard.html", {
-        "request": request,
-        "quiz": quiz,
-        "score": score,
-    })
+      <footer className="mt-12 text-sm text-gray-400">© 2025 Quiz App. All rights reserved.</footer>
+    </div>
+  )
+}
