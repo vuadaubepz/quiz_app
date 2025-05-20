@@ -1,27 +1,22 @@
 {% extends "base.html" %}
-{% block title %}Đăng ký{% endblock %}
+{% block title %}Đăng nhập{% endblock %}
 {% block content %}
-<div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
-  <h2 class="text-2xl font-semibold mb-4">Đăng ký</h2>
-  <form method="post" class="space-y-4">
-    <div>
-      <label class="block text-sm font-medium">Email</label>
-      <input type="email" name="email" required
-             class="w-full mt-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"/>
-    </div>
-    <div>
-      <label class="block text-sm font-medium">Mật khẩu</label>
-      <input type="password" name="password" required
-             class="w-full mt-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"/>
-    </div>
+<div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-lg">
+  <h2 class="text-2xl font-bold mb-6 text-center">Đăng nhập</h2>
+  {% if error %}<p class="text-red-500 mb-4">{{ error }}</p>{% endif %}
+  <form method="post" class="space-y-5">
+    <input name="email" type="email" placeholder="Email" required
+           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400"/>
+    <input name="password" type="password" placeholder="Mật khẩu" required
+           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400"/>
     <button type="submit"
-            class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded transition">
-      Đăng ký
+            class="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-3 rounded-full shadow hover:from-purple-600 hover:to-blue-600 transition">
+      Đăng nhập
     </button>
   </form>
-  <p class="mt-4 text-sm">
-    Đã có tài khoản? 
-    <a href="/login" class="text-blue-500 hover:underline">Đăng nhập</a>
+  <p class="mt-4 text-center text-gray-600">
+    Chưa có tài khoản?
+    <a href="/register" class="text-purple-600 hover:underline">Đăng ký</a>
   </p>
 </div>
 {% endblock %}

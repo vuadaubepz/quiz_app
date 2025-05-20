@@ -1,12 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Đăng nhập{% endblock %}
 {% block content %}
-<h2 class="text-2xl mb-4">Đăng nhập</h2>
-{% if error %}<p class="text-red-500 mb-2">{{ error }}</p>{% endif %}
-<form method="post" class="space-y-4">
-  <input name="email" type="email" placeholder="Email" required class="w-full p-2 border rounded">
-  <input name="password" type="password" placeholder="Mật khẩu" required class="w-full p-2 border rounded">
-  <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Đăng nhập</button>
-</form>
-<p class="mt-4">Chưa có tài khoản? <a href="/register" class="text-blue-600">Đăng ký</a></p>
+<div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-lg">
+  <h2 class="text-2xl font-bold mb-6 text-center text-indigo-600">Đăng nhập</h2>
+  <form method="post" class="space-y-5">
+    <input name="username" type="text" placeholder="Tên đăng nhập" required
+           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"/>
+    <input name="password" type="password" placeholder="Mật khẩu" required
+           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"/>
+    <div class="flex items-center justify-between text-sm">
+      <label class="flex items-center">
+        <input type="checkbox" name="remember" class="mr-2 h-4 w-4 text-indigo-600 border-gray-300 rounded"/>
+        Ghi nhớ đăng nhập
+      </label>
+      <a href="/forgot-password" class="text-indigo-600 hover:underline">Quên mật khẩu?</a>
+    </div>
+    <button type="submit"
+            class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-3 rounded-full shadow hover:from-indigo-600 hover:to-purple-600 transition">
+      Đăng nhập
+    </button>
+  </form>
+  <p class="mt-4 text-center text-gray-600">
+    Chưa có tài khoản? 
+    <a href="/register" class="text-indigo-600 hover:underline">Đăng ký</a>
+  </p>
+</div>
 {% endblock %}
