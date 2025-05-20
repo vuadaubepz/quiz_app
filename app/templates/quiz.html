@@ -1,85 +1,101 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz App Demo</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Vẽ các vòng tròn trang trí */
+    .bg-deco {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(99, 102, 241, 0.15);
+      z-index: -1;
+    }
+    .deco1 { width: 200px; height: 200px; top: -50px; left: -50px; }
+    .deco2 { width: 100px; height: 100px; bottom: 20px; left: 150px; }
+    .deco3 { width: 300px; height: 300px; bottom: -100px; right: -100px; }
+  </style>
+</head>
+<body class="bg-indigo-50 relative min-h-screen flex items-center justify-center p-4">
 
-{% block title %}{{ quiz.title }}{% endblock title %}
+  <!-- Vòng tròn trang trí -->
+  <div class="bg-deco deco1"></div>
+  <div class="bg-deco deco2"></div>
+  <div class="bg-deco deco3"></div>
 
-{% block content %}
-  <h2 class="text-2xl font-bold mb-4 text-center">{{ quiz.title }}</h2>
-
-  <!-- Timer & Progress -->
-  <div class="flex justify-between items-center mb-4">
-    <div id="timer" class="text-red-600 font-semibold">45:00</div>
-    <div class="text-sm text-gray-600">
-      Câu <span id="current-question">1</span> / {{ qs_data|length }}
-    </div>
-  </div>
-  <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
-    <div id="progbar" class="bg-blue-500 h-2 rounded-full" style="width:0%"></div>
-  </div>
-
-  <form
-    method="post"
-    action="/quiz/{{ quiz.id }}/submit"
-    class="space-y-6"
-    id="quiz-form"
-  >
-    {% for item in qs_data %}
-      <div
-        class="bg-white rounded-2xl shadow-lg p-6 transition-shadow duration-200"
-        data-index="{{ loop.index0 }}"
-        {% if loop.index0 != 0 %}style="display:none"{% endif %}
-      >
-        <p class="text-lg font-medium mb-3">
-          {{ item['q'].text }}
-        </p>
-        <div class="space-y-2">
-          {% for c in item['choices'] %}
-            <label class="flex items-center space-x-2 transition-colors duration-200 hover:text-blue-600">
-              <input
-                type="radio"
-                name="q{{ item['q'].id }}"
-                value="{{ c.id }}"
-                required
-                class="form-radio transition-transform duration-150 hover:scale-105"
-              />
-              <span>{{ c.text }}</span>
-            </label>
-          {% endfor %}
-        </div>
+  <div class="max-w-3xl w-full bg-white rounded-3xl shadow-2xl p-8 md:p-12 relative z-10">
+    <!-- Timer -->
+    <div class="flex justify-center mb-6">
+      <div id="timer" class="text-indigo-600 font-medium text-lg flex items-center space-x-1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span id="time">45:00</span>
       </div>
-    {% endfor %}
-
-    <div class="flex justify-between items-center">
-      <button
-        type="button"
-        id="prev-btn"
-        class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
-        disabled
-      >Prev</button>
-
-      <button
-        type="button"
-        id="next-btn"
-        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-      >Next</button>
     </div>
 
-    <button
-      type="submit"
-      class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded mt-4 transition-colors"
-    >
-      Nộp bài
-    </button>
-  </form>
+    <!-- Progress Badge -->
+    <div class="flex justify-center mb-4">
+      <span class="bg-indigo-100 text-indigo-600 px-4 py-1 rounded-full text-sm font-medium">
+        Câu hỏi 1 / 10
+      </span>
+    </div>
+
+    <!-- Câu hỏi -->
+    <div class="mb-8">
+      <p class="text-center text-gray-800 text-lg md:text-xl font-semibold">
+        Siapa pengarang Jurassic Park yang mengantongi ijazah dokter dari Harvard University dengan predikat Summa Cum Laude?
+      </p>
+    </div>
+
+    <!-- Các đáp án -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+      <label class="block p-4 border border-indigo-300 rounded-lg hover:shadow-lg transition cursor-pointer">
+        <input type="radio" name="answer" class="mr-2 text-indigo-600"/>
+        Michael Crichton
+      </label>
+      <label class="block p-4 border border-indigo-300 rounded-lg hover:shadow-lg transition cursor-pointer">
+        <input type="radio" name="answer" class="mr-2 text-indigo-600"/>
+        Nicholas Sparks
+      </label>
+      <label class="block p-4 border border-indigo-300 rounded-lg hover:shadow-lg transition cursor-pointer">
+        <input type="radio" name="answer" class="mr-2 text-indigo-600"/>
+        James Redfield
+      </label>
+      <label class="block p-4 border border-indigo-300 rounded-lg hover:shadow-lg transition cursor-pointer">
+        <input type="radio" name="answer" class="mr-2 text-indigo-600"/>
+        David Guterson
+      </label>
+    </div>
+
+    <!-- Nút tiếp theo -->
+    <div class="flex justify-center">
+      <button id="nextBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-full shadow-lg transition">
+        Selanjutnya
+      </button>
+    </div>
+  </div>
 
   <script>
-    // Timer
-    let sec = 45 * 60,
-        timer = document.getElementById("timer"),
-        form = document.getElementById("quiz-form"),
-        total = {{ qs_data|length }},
-        current = 0;
+    // Timer 45 phút
+    let totalSec = 45 * 60;
+    const timeEl = document.getElementById('time');
+    const timerId = setInterval(() => {
+      if (totalSec <= 0) {
+        clearInterval(timerId);
+        alert('Hết giờ! Nộp bài tự động.');
+        document.getElementById('nextBtn').click();
+        return;
+      }
+      totalSec--;
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
+      timeEl.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }, 1000);
+  </script>
 
-    const updateUI = () => {
-      // progress bar & counter
-      document.getElementById("current-question").textContent = current + 1;
-      document.getElementById("progbar").style
+</body>
+</html>
